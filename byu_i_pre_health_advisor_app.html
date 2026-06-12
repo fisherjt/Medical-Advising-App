@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BYU-Idaho Pre-Health Professions Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom BYU-I School Colors based on the uploaded logo */
+        .bg-byui-blue { background-color: #3063A5; }
+        .text-byui-blue { color: #3063A5; }
+        .border-byui-blue { border-color: #3063A5; }
+        .hover\:bg-byui-blue-dark:hover { background-color: #244C82; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <div id="app" class="flex flex-col min-h-screen">
+        
+        <!-- TOP NAVIGATION BAR -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    
+                    <!-- App Logo & BYU-I Branding (Recreated from image_2c9f65.png) -->
+                    <div class="flex items-center space-x-3">
+                        <div class="flex flex-col items-center justify-center border-r border-slate-200 pr-4 mr-1">
+                            <div style="font-family: Georgia, serif; color: #3063A5;" class="text-center select-none leading-none">
+                                <div class="text-3xl font-extrabold tracking-tight" style="line-height: 0.85;">BYU</div>
+                                <div class="w-full my-0.5 border-t-[1.5px] border-[#3063A5]"></div>
+                                <div class="text-[9px] font-bold tracking-[0.25em]" style="line-height: 1;">IDAHO</div>
+                            </div>
+                        </div>
+                        <div class="hidden sm:block">
+                            <span class="text-xs font-bold text-[#3063A5] uppercase tracking-wider block">Pre-Health Professions</span>
+                            <span class="block text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none">Health Professions Advising Office</span>
+                        </div>
+                    </div>
+                    
+                    <!-- ROLE TOGGLE SWITCHER -->
+                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="toggleRole('advisor')" id="role-btn-advisor" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 bg-white text-[#3063A5] shadow-xs">
+                            <span class="flex items-center gap-1.5">
+                                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                                Advisor View
+                            </span>
+                        </button>
+                        <button onclick="toggleRole('student')" id="role-btn-student" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 text-slate-500 hover:text-slate-800">
+                            <span class="flex items-center gap-1.5">
+                                <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                                Student View
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- TAB NAVIGATION LINKS (ADVISOR ONLY BY DEFAULT) -->
+                    <nav id="nav-group-advisor" class="hidden md:flex space-x-1 items-center">
+                        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors bg-blue-50 text-[#3063A5]">
+                            Advisee Cohort
+                        </button>
+                        <button onclick="switchTab('evaluator')" id="nav-evaluator" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+                            Holistic Calculator
+                        </button>
+                        <button onclick="switchTab('schools')" id="nav-schools" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+                            Mission-Align Finder
+                        </button>
+                    </nav>
+
+                    <!-- TAB NAVIGATION LINKS (STUDENT ONLY) -->
+                    <nav id="nav-group-student" class="hidden md:flex space-x-1 items-center">
+                        <div class="mr-2 text-xs font-medium text-slate-400 flex items-center gap-2">
+                            <span>BYU-I Student:</span>
+                            <select id="student-selector" onchange="changeActiveStudentSession()" class="bg-slate-100 border border-slate-200 rounded-lg py-1 px-2.5 font-bold text-slate-700 text-xs focus:ring-1 focus:ring-blue-600 outline-none">
+                                <!-- Loaded dynamically -->
+                            </select>
+                        </div>
+                        <button onclick="switchTab('student-dashboard')" id="nav-student-dashboard" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+                            My Dashboard
+                        </button>
+                        <button onclick="switchTab('statement')" id="nav-statement" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+                            Statement Hook Advisor
+                        </button>
+                        <button onclick="switchTab('schools')" id="nav-schools-student" class="px-3 py-2 rounded-lg text-xs font-bold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+                            Mission-Align Finder
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN PAGE INNER WRAPPER -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- ================= ADVISOR VIEW TABS ================= -->
+
+            <!-- TAB 1: ADVISOR COHORT DIRECTORY -->
+            <section id="tab-dashboard" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-slate-900">BYU-I Advisee Command Center</h1>
+                        <p class="text-slate-500 mt-1">Track Rexburg campus pre-health candidates, manage missionary service conversions, and monitor holistic admissions viability.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportToCSV()" class="inline-flex items-center px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 transition shadow-xs">
+                            <i data-lucide="download" class="w-4 h-4 mr-2 text-[#3063A5]"></i>
+                            Export Spreadsheet (CSV)
+                        </button>
+                        <button onclick="openNewStudentModal()" class="inline-flex items-center px-4 py-2.5 bg-[#3063A5] hover:bg-byui-blue-dark text-white rounded-lg text-sm font-semibold transition shadow-md">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Add New Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARDS OVERVIEW -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                        <div class="p-3 rounded-xl bg-blue-50 text-[#3063A5]">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-400 font-bold uppercase tracking-wider">Total BYUI Cohort</span>
+                            <span id="stat-total-students" class="text-2xl font-black text-slate-900">0</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                        <div class="p-3 rounded-xl bg-blue-50 text-[#3063A5]">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-400 font-bold uppercase tracking-wider">Highly Qualified</span>
+                            <span id="stat-highly-qualified" class="text-2xl font-black text-slate-900">0</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                        <div class="p-3 rounded-xl bg-slate-50 text-slate-600">
+                            <i data-lucide="activity" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-400 font-bold uppercase tracking-wider">Average Science GPA</span>
+                            <span id="stat-avg-gpa" class="text-2xl font-black text-slate-900 font-mono">0.00</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                        <div class="p-3 rounded-xl bg-slate-100 text-[#3063A5]">
+                            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-400 font-bold uppercase tracking-wider">Action Required</span>
+                            <span id="stat-alert-students" class="text-2xl font-black text-slate-900 font-mono">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STUDENT ROSTER & DETAILS -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span>Pre-Health Student Registry</span>
+                            <span class="text-xs bg-blue-50 text-[#3063A5] font-bold px-2 py-0.5 rounded-md">Live Advising Sync</span>
+                        </h2>
+                        <div class="flex items-center space-x-3 w-full sm:w-auto">
+                            <div class="relative flex-grow sm:flex-grow-0">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                </span>
+                                <input type="text" id="student-search-input" onkeyup="renderStudentTable()" placeholder="Search student name..." class="pl-9 pr-4 py-2 w-full sm:w-64 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-900">
+                            </div>
+                            <select id="filter-pathway" onchange="renderStudentTable()" class="border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white font-semibold">
+                                <option value="all">All Pathways</option>
+                                <option value="Pre-Med">Pre-Medical</option>
+                                <option value="Pre-Dent">Pre-Dental</option>
+                                <option value="Pre-Opt">Pre-Optometry</option>
+                                <option value="Pre-Pharm">Pharmacy</option>
+                                <option value="Pre-PT">Pre-Physical Therapy</option>
+                                <option value="Pre-PA">Pre-Physician Assistant</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase border-b border-slate-100">
+                                    <th class="py-4 px-6">Name & Pathway</th>
+                                    <th class="py-4 px-6 text-center">Cumulative / Sci GPA</th>
+                                    <th class="py-4 px-6 text-center">Shadowing / Clinical</th>
+                                    <th class="py-4 px-6 text-center">Service (incl. Mission)</th>
+                                    <th class="py-4 px-6 text-center">Leadership / Research</th>
+                                    <th class="py-4 px-6">Holistic Standing</th>
+                                    <th class="py-4 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body" class="divide-y divide-slate-100 text-sm">
+                                <!-- Loaded dynamically with JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: DETAILED HOLISTIC CALCULATOR -->
+            <section id="tab-evaluator" class="hidden space-y-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-900">Admissions Viability Calculator</h1>
+                    <p class="text-slate-500 mt-1">Cross-check student portfolios with the core expectations of national health profession admissions bodies.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left and Mid Columns: Entry Panels -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                            <h2 class="text-lg font-bold text-slate-900 flex items-center">
+                                <i data-lucide="sliders" class="w-5 h-5 text-[#3063A5] mr-2"></i>
+                                Application Parameters
+                            </h2>
+                            <button onclick="clearCalculatorForm()" class="text-sm text-slate-500 hover:text-[#3063A5] transition font-bold">Reset Fields</button>
+                        </div>
+
+                        <!-- INPUTS FORM -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Student Name</label>
+                                <input type="text" id="calc-name" value="Jane Doe" class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-900 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Target Track</label>
+                                <select id="calc-track" class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-900 outline-none bg-white font-semibold">
+                                    <option value="Pre-Med">Pre-Medical (AAMC Expectations)</option>
+                                    <option value="Pre-Dent">Pre-Dental (ADEA Expectations)</option>
+                                    <option value="Pre-Opt">Pre-Optometry</option>
+                                    <option value="Pre-Pharm">Pharmacy</option>
+                                    <option value="Pre-PT">Pre-Physical Therapy</option>
+                                    <option value="Pre-PA">Pre-Physician Assistant</option>
+                                </select>
+                            </div>
+
+                            <!-- Academics -->
+                            <div class="bg-blue-50/50 p-4 rounded-xl space-y-4 border border-blue-100">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center">
+                                    <i data-lucide="book-open" class="w-4 h-4 mr-1.5 text-[#3063A5]"></i> Academic Metrics
+                                </h3>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Cumulative GPA</label>
+                                        <input type="number" step="0.01" min="0" max="4.0" id="calc-gpa" value="3.72" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Science GPA</label>
+                                        <input type="number" step="0.01" min="0" max="4.0" id="calc-science-gpa" value="3.65" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Exam Type</label>
+                                        <input type="text" id="calc-exam-type" value="MCAT" placeholder="e.g. DAT" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Exam Score</label>
+                                        <input type="number" id="calc-exam-score" value="511" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Experiences / Hours -->
+                            <div class="bg-slate-100/50 p-4 rounded-xl space-y-3 border border-slate-200">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-1.5 text-slate-700"></i> Experience Logs (Hours)
+                                </h3>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Shadowing Hours</label>
+                                        <input type="number" id="calc-shadowing" value="65" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Clinical Hours</label>
+                                        <input type="number" id="calc-clinical" value="180" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Service Hours</label>
+                                        <input type="number" id="calc-service" value="120" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold" title="Include service mission hours converted dynamically">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Leadership Roles</label>
+                                        <input type="number" id="calc-leadership" value="45" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="col-span-2">
+                                        <label class="block text-xs font-medium text-slate-600 mb-1">Research Hours (Optional)</label>
+                                        <input type="number" id="calc-research" value="80" class="w-full border border-slate-200 rounded-lg p-2 text-sm text-center font-bold">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Core Competency Evaluation Checklist -->
+                        <div class="space-y-4">
+                            <div class="border-t border-slate-100 pt-4">
+                                <h3 class="text-sm font-bold text-slate-900 mb-1">Qualitative BYU-I Core Competency Standards</h3>
+                                <p class="text-xs text-slate-500">Admissions panels cross-examine these attributes alongside foundational academic indexes.</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="border border-slate-200 p-3.5 rounded-xl space-y-2.5">
+                                    <span class="text-xs font-bold text-[#3063A5] uppercase tracking-wide flex items-center">
+                                        <i data-lucide="shield-check" class="w-4 h-4 text-[#3063A5] mr-1.5"></i>
+                                        Character & Integrity
+                                    </span>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="comp-ethics" checked class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>BYU-I Honor Code & Ethical Integrity</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="comp-empathy" checked class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Empathy & Compassionate Patient Connection</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="comp-teamwork" checked class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Teamwork & Collaborative Stewardship</span>
+                                    </label>
+                                </div>
+                                <div class="border border-slate-200 p-3.5 rounded-xl space-y-2.5">
+                                    <span class="text-xs font-bold text-[#3063A5] uppercase tracking-wide flex items-center">
+                                        <i data-lucide="compass" class="w-4 h-4 text-[#3063A5] mr-1.5"></i>
+                                        Disciple Leadership
+                                    </span>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="comp-resilience" checked class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Resilience, Grit & Adaptation</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="comp-growth" checked class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Teachability & Lifelong Intellectual Curiosity</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="comp-manual-dex" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Manual Dexterity (Essential for Dental)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advisor Coaching/Notes Box -->
+                        <div class="border-t border-slate-100 pt-4 space-y-2">
+                            <label class="block text-sm font-bold text-slate-800">Advisor Coaching Notes & Recommendations</label>
+                            <textarea id="calc-notes" rows="3" class="w-full border border-slate-200 rounded-lg p-2.5 text-xs outline-none focus:ring-2 focus:ring-blue-900" placeholder="Provide direct feedback. Synced instantaneously with the student view dashboard..."></textarea>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                            <button onclick="calculateHolisticScore()" class="px-5 py-2.5 bg-[#3063A5] hover:bg-byui-blue-dark text-white rounded-lg text-sm font-semibold transition shadow-md">
+                                Calculate Holistic Standing
+                            </button>
+                            <button onclick="saveCalculatedToCohort()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 transition shadow-md">
+                                Sync to BYU-I Cohort
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Interactive Diagnostic Report -->
+                    <div class="space-y-6">
+                        <div class="bg-[#3063A5] text-white rounded-2xl shadow-lg p-6 space-y-6 border-b-4 border-slate-300">
+                            <div>
+                                <span class="bg-white/15 text-white text-[10px] uppercase tracking-widest font-extrabold px-2.5 py-1 rounded-full border border-white/20">
+                                    DIAGNOSTIC RADAR
+                                </span>
+                                <h2 class="text-2xl font-bold mt-2" id="report-name">Jane Doe</h2>
+                                <p class="text-xs text-slate-100 mt-0.5 font-medium" id="report-track">Target: Pre-Medical Track</p>
+                            </div>
+
+                            <!-- HOLISTIC HEALTH SCORE CIRCLE -->
+                            <div class="flex flex-col items-center justify-center py-4 border-y border-white/10">
+                                <span class="text-[10px] text-slate-100 font-bold tracking-widest">ADMISSIONS STANDING</span>
+                                <div class="text-2xl font-black mt-2 tracking-tight text-center text-white" id="report-grade-badge">
+                                    Highly Competitive
+                                </div>
+                                <span class="text-xs text-slate-200 mt-1" id="report-numeric-score">Admissions Score: 88/100</span>
+                            </div>
+
+                            <!-- COMPONENT ANALYSIS BADGES -->
+                            <div class="space-y-4">
+                                <h3 class="text-[10px] font-bold text-slate-100 uppercase tracking-widest">Admissions Metric Scorecards</h3>
+                                
+                                <div class="space-y-2.5 text-xs">
+                                    <div class="flex justify-between items-center bg-white/5 p-2.5 rounded-lg border border-white/5">
+                                        <span class="font-medium text-slate-300">GPA Requirements</span>
+                                        <span id="badge-gpa" class="px-2 py-0.5 bg-emerald-500/25 text-emerald-300 font-bold rounded">Outstanding</span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-white/5 p-2.5 rounded-lg border border-white/5">
+                                        <span class="font-medium text-slate-300">Shadowing Hours</span>
+                                        <span id="badge-shadowing" class="px-2 py-0.5 bg-blue-500/30 text-blue-200 font-bold rounded">Competitive</span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-white/5 p-2.5 rounded-lg border border-white/5">
+                                        <span class="font-medium text-slate-300">Hands-on Clinical Hours</span>
+                                        <span id="badge-clinical" class="px-2 py-0.5 bg-emerald-500/25 text-emerald-300 font-bold rounded">Outstanding</span>
+                                    </div>
+                                    <div class="flex justify-between items-center bg-white/5 p-2.5 rounded-lg border border-white/5">
+                                        <span class="font-medium text-slate-300">Service, Leadership & Missions</span>
+                                        <span id="badge-extracurriculars" class="px-2 py-0.5 bg-blue-500/30 text-blue-200 font-bold rounded">Developing</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ADVISOR COACHING ACTION PLAN -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center">
+                                <i data-lucide="compass" class="w-4 h-4 mr-2 text-[#3063A5]"></i>
+                                BYU-I Advising Milestones Required
+                            </h3>
+                            <ul id="advisor-recommendations" class="space-y-3 text-xs text-slate-600">
+                                <!-- Generated Dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= STUDENT VIEW TABS ================= -->
+
+            <!-- TAB 3: STUDENT DASHBOARD -->
+            <section id="tab-student-dashboard" class="hidden space-y-6">
+                <!-- BYU-I Branded Welcome Banner -->
+                <div class="bg-gradient-to-r from-[#3063A5] to-slate-800 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden border-b-4 border-slate-200">
+                    <div class="relative z-10 space-y-2">
+                        <span class="bg-white/15 border border-white/10 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-slate-100">BYUI Candidate Hub</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold" id="student-welcome-name">Welcome, Student</h1>
+                        <p class="text-sm text-blue-100 max-w-xl font-medium">Log service hours, missionary work, research projects, clinical details, and academic checkpoints. All entries sync instantly with Rexburg's advising portal.</p>
+                    </div>
+                    <div class="absolute right-4 bottom-4 opacity-10 pointer-events-none">
+                        <i data-lucide="graduation-cap" class="w-48 h-48 text-white"></i>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left & Mid Columns: Self Reporting Portfolio Inputs & Tracking Status -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- PORTFOLIO INPUT BOARD -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                            <div class="border-b border-slate-100 pb-4 flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                        <i data-lucide="pencil-line" class="text-[#3063A5] w-5 h-5"></i>
+                                        Self-Report Portfolio Checkpoints
+                                    </h2>
+                                    <p class="text-xs text-slate-500 mt-0.5">Report clinical achievements, shadowing logs, and church/community service hours.</p>
+                                </div>
+                                <span class="text-xs bg-emerald-50 text-emerald-800 font-bold px-2.5 py-1 rounded border border-emerald-100 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> Connected
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Academics Section -->
+                                <div class="space-y-4">
+                                    <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i data-lucide="book" class="w-4 h-4 text-[#3063A5]"></i> Academics & Entrance Exam
+                                    </h3>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Cumulative GPA</label>
+                                            <input type="number" step="0.01" min="0" max="4.00" id="student-gpa" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Science GPA</label>
+                                            <input type="number" step="0.01" min="0" max="4.00" id="student-science-gpa" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Exam Type</label>
+                                            <input type="text" id="student-exam-type" placeholder="e.g. DAT / MCAT" class="w-full border border-slate-200 rounded-lg p-2 text-sm bg-slate-50/50 font-bold text-center">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Test Score</label>
+                                            <input type="number" id="student-exam-score" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50 text-center">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hours Section -->
+                                <div class="space-y-4">
+                                    <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i data-lucide="clock" class="w-4 h-4 text-[#3063A5]"></i> Hours Logbook
+                                    </h3>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1" title="Shadowing healthcare practitioners in office">Shadowing Hours</label>
+                                            <input type="number" id="student-shadowing" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1" title="Direct patient interactions, paid or volunteer">Clinical Hours</label>
+                                            <input type="number" id="student-clinical" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1" title="Community volunteering. Converts up to 100 hours of church service / Full-time mission hours.">Service Hours *</label>
+                                            <input type="number" id="student-service" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1" title="Club leadership, teaching assistant, ecclesiastical duties">Leadership Hours</label>
+                                            <input type="number" id="student-leadership" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Research Hours (Optional)</label>
+                                        <input type="number" id="student-research" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-bold bg-slate-50/50">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- BYUI Competencies Section -->
+                            <div class="pt-4 border-t border-slate-100">
+                                <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                    <i data-lucide="award" class="w-4 h-4 text-[#3063A5]"></i> BYUI Core Competency Checklist
+                                </h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="student-comp-ethics" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>BYU-I Honor Code Aligned</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="student-comp-empathy" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Empathy & Compassion</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="student-comp-teamwork" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Collaboration Stewardship</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="student-comp-resilience" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Resilience & Grit</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="student-comp-growth" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Disciple Leadership Growth</span>
+                                    </label>
+                                    <label class="flex items-start text-xs text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="student-comp-dexterity" class="mt-0.5 mr-2 rounded text-blue-600">
+                                        <span>Manual Dexterity</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                                <span class="text-[10px] text-slate-400 italic font-medium max-w-sm">* Note: Advisors recommend converting full-time missions/humanitarian service to a maximum benchmark of 100 dedicated service hours on admissions entries.</span>
+                                <button onclick="saveStudentSelfReport()" class="px-6 py-3 bg-[#3063A5] text-white text-sm font-semibold rounded-xl hover:bg-byui-blue-dark transition shadow-lg flex items-center gap-2">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                    Save & Sync Portfolio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Student Status Visualizations & Advisor Notes feedback -->
+                    <div class="space-y-6">
+                        
+                        <!-- VISUAL METER AND TRACK RATING -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                            <div class="text-center space-y-2">
+                                <span class="bg-blue-50 text-[#3063A5] text-xs uppercase tracking-wider font-extrabold px-3 py-1 rounded-full">
+                                    BYU-I ADMISSIONS METER
+                                </span>
+                                <h3 class="text-lg font-bold text-slate-900" id="student-target-label">Pathway: Pre-Med</h3>
+                            </div>
+
+                            <!-- Radial Progress Area -->
+                            <div class="flex flex-col items-center justify-center p-4 bg-slate-50/50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Holistic Application Score</span>
+                                <div id="student-visual-rating" class="text-2xl font-black text-blue-900 mt-2">Developing Candidate</div>
+                                <div id="student-visual-score" class="text-xs text-slate-500 mt-0.5">Readiness Index: 45/100</div>
+                            </div>
+                        </div>
+
+                        <!-- ADVISOR LIVE NOTES SECTION -->
+                        <div class="bg-slate-100 rounded-2xl border border-slate-200 p-6 space-y-4">
+                            <div class="flex items-center gap-2 text-slate-900 font-bold">
+                                <i data-lucide="message-square" class="w-5 h-5 text-[#3063A5]"></i>
+                                <h3>Direct Advisor Feedback</h3>
+                            </div>
+                            <p id="student-advisor-notes-p" class="text-xs text-slate-700 leading-relaxed italic">
+                                "No advising notes registered. Visit with an advisor in Clarke Building."
+                            </p>
+                            <div class="flex items-center gap-2 text-[10px] text-slate-500 uppercase tracking-wider font-bold pt-2 border-t border-slate-200/50">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#3063A5]"></i>
+                                BYU-I Health Professions Office Verified
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: PERSONAL STATEMENT WORKBENCH & HOOK EVALUATOR -->
+            <section id="tab-statement" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-slate-900">Personal Statement Hook Advisor</h1>
+                        <p class="text-slate-500 mt-1">Structure a captivating narrative hook. Receive instant pre-health professional feedback customized for BYU-I applicants.</p>
+                    </div>
+                    <div class="bg-blue-50 px-3 py-1.5 rounded-lg text-[#3063A5] text-xs font-bold flex items-center">
+                        <i data-lucide="sparkles" class="w-4 h-4 mr-1 text-[#3063A5]"></i> Disciple Leadership Reflection
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Left: Interactive workspace -->
+                    <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-slate-800">Draft Your Hook or Introductory Paragraph</label>
+                            <p class="text-xs text-slate-500">Your introductory hook needs to stand out. Start directly with a pivotal sensory experience (an encounter, patient case, or community challenge) rather than generic remarks like "I have always wanted to study science."</p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <textarea id="essay-hook-input" rows="8" class="w-full border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none bg-slate-50/50" placeholder="Paste your 150-300 word introductory hook here... e.g., 'The high-pitched hum of the dental handpiece always made patients tingle, but when Mrs. Rodriguez held my hand during the extraction, I saw pain yield to human touch...'"></textarea>
+                            <div class="flex justify-between items-center text-xs text-slate-400">
+                                <span id="char-count">0 characters</span>
+                                <span id="word-count">0 words</span>
+                            </div>
+                        </div>
+
+                        <!-- Selector of Common Pitfalls / Archetypes -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide">Select Introductory Narrative Style</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button onclick="selectHookTemplate('clinical')" class="px-3 py-2 text-xs border border-slate-200 rounded-lg hover:border-blue-900 text-slate-600 hover:text-blue-900 transition text-left">
+                                    <span class="block font-bold">Clinical Action</span>
+                                    Patient interaction focus
+                                </button>
+                                <button onclick="selectHookTemplate('personal')" class="px-3 py-2 text-xs border border-slate-200 rounded-lg hover:border-blue-900 text-slate-600 hover:text-blue-900 transition text-left">
+                                    <span class="block font-bold">Personal Hardship</span>
+                                    Family/medical hurdle
+                                </button>
+                                <button onclick="selectHookTemplate('service')" class="px-3 py-2 text-xs border border-slate-200 rounded-lg hover:border-blue-900 text-slate-600 hover:text-blue-900 transition text-left">
+                                    <span class="block font-bold">Mission/Service</span>
+                                    Humanitarian perspective
+                                </button>
+                                <button onclick="selectHookTemplate('academic')" class="px-3 py-2 text-xs border border-slate-200 rounded-lg hover:border-blue-900 text-slate-600 hover:text-blue-900 transition text-left">
+                                    <span class="block font-bold">Scientific Inquiry</span>
+                                    Research bench findings
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="analyzeEssayHook()" class="w-full py-3 bg-[#3063A5] hover:bg-byui-blue-dark text-white font-semibold rounded-xl transition shadow-md flex items-center justify-center space-x-2">
+                                <i data-lucide="beaker" class="w-4 h-4"></i>
+                                <span>Evaluate Narrative Hook</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Advanced Analysis Dashboard -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <!-- DIAGNOSTIC BREAKDOWN -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                            <h3 class="text-md font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center">
+                                <i data-lucide="badge-check" class="text-emerald-500 w-5 h-5 mr-2"></i>
+                                Hook Diagnosis Matrix
+                            </h3>
+
+                            <div class="space-y-4">
+                                <!-- Scoring Indicators -->
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs font-semibold text-slate-600">
+                                        <span>Show, Don't Tell Intensity</span>
+                                        <span id="score-show-tell" class="text-blue-900">0%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <div id="bar-show-tell" class="bg-blue-900 h-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs font-semibold text-slate-600">
+                                        <span>Cliché / Predictability Risk</span>
+                                        <span id="score-cliche" class="text-blue-900">0%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <div id="bar-cliche" class="bg-blue-900 h-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs font-semibold text-slate-600">
+                                        <span>Disciple leadership Core Alignment</span>
+                                        <span id="score-competency" class="text-blue-900">0%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                        <div id="bar-competency" class="bg-blue-900 h-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-xl space-y-2.5 border border-slate-200">
+                                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide">Key Admissions Assessment:</h4>
+                                <p id="hook-critique-text" class="text-xs text-slate-600 leading-relaxed">
+                                    Type your hook introductory content on the left pane and select "Evaluate" to assess formatting and language strengths.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide block">Actionable BYU-I Advisor Suggestion</span>
+                                <div class="p-3 bg-slate-100 text-slate-800 rounded-lg text-xs leading-relaxed border border-slate-200 flex items-start space-x-2">
+                                    <i data-lucide="lightbulb" class="w-4 h-4 flex-shrink-0 text-[#3063A5] mt-0.5"></i>
+                                    <span id="hook-advisor-advice">Write or paste your intro section draft to analyze theme layout, check for overused cliché strings, and find structural gaps.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: SCHOOL FINDER & MISSION ALIGNMENT (FULLY UPGRADED FOR STATE CHECKLIST WORKFLOW) -->
+            <section id="tab-schools" class="hidden space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-slate-900">Mission-Alignment School Finder</h1>
+                        <p class="text-slate-500 mt-1">Holistic admissions prioritizes alignment with a school's mission. Filter complete professional programs, select up to 10 schools, and compare target requirements.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- LEFT COLUMN: STATE & PROFESSION DROPDOWNS + SCHOOL CHECKLIST -->
+                    <div class="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+                        <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                            <h3 class="font-extrabold text-slate-900 text-sm">Target Cohort Filters</h3>
+                            <button onclick="resetDirectoryFilters()" class="text-xs text-[#3063A5] font-bold hover:underline">Reset</button>
+                        </div>
+
+                        <!-- Profession Dropdown -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">1. Select Profession</label>
+                            <select id="school-filter-field" onchange="onFilterParamsChange()" class="w-full border border-slate-200 rounded-lg p-2.5 text-xs bg-white font-semibold text-slate-700">
+                                <option value="all">All Professions</option>
+                                <option value="Medical">Medical School (MD/DO)</option>
+                                <option value="Dental">Dental School (DDS/DMD)</option>
+                                <option value="Physician Assistant">Physician Assistant (PA)</option>
+                                <option value="Physical Therapy">Physical Therapy (DPT)</option>
+                                <option value="Optometry">Optometry (OD)</option>
+                                <option value="Pharmacy">Pharmacy (PharmD)</option>
+                            </select>
+                        </div>
+
+                        <!-- State Dropdown -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">2. Select State</label>
+                            <select id="school-filter-state" onchange="onFilterParamsChange()" class="w-full border border-slate-200 rounded-lg p-2.5 text-xs bg-white font-semibold text-slate-700">
+                                <option value="all">All Locations</option>
+                                <option value="ID">Idaho</option>
+                                <option value="UT">Utah</option>
+                                <option value="WA">Washington</option>
+                                <option value="OR">Oregon</option>
+                                <option value="AZ">Arizona</option>
+                                <option value="CO">Colorado</option>
+                                <option value="NV">Nevada</option>
+                                <option value="NE">Nebraska</option>
+                                <option value="MO">Missouri</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic School Checklist (Fulfills exact checklist query) -->
+                        <div class="space-y-3 pt-4 border-t border-slate-100">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">3. Checkbox School Selection</label>
+                                <span id="matching-schools-count" class="text-[10px] bg-slate-100 px-2 py-0.5 rounded font-mono font-bold text-slate-500">0 found</span>
+                            </div>
+                            <div id="schools-checklist-container" class="max-h-64 overflow-y-auto border border-slate-200 rounded-xl p-3 space-y-2 bg-slate-50/50">
+                                <!-- Populated dynamically with checkboxes -->
+                            </div>
+                        </div>
+
+                        <!-- BYU-I Advising Reminder card -->
+                        <div class="bg-blue-50/75 p-4 rounded-xl text-xs text-[#3063A5] border border-blue-100 leading-relaxed space-y-2">
+                            <div class="font-extrabold flex items-center gap-1">
+                                <i data-lucide="info" class="w-4 h-4 flex-shrink-0 text-[#3063A5]"></i>
+                                <span>Advising Insight</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600">Converting your **ecclesiastical, service, or full-time missionary service** provides up to 100 optimal hours of humanitarian outreach context. Frame these activities to align with primary care and outreach missions.</p>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: COMPARE DESK GRID -->
+                    <div class="lg:col-span-8 space-y-4">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                    <i data-lucide="git-compare" class="text-byui-blue w-5 h-5"></i>
+                                    School Mission Comparison Workspace (<span id="compare-desk-count" class="text-byui-blue font-bold">0</span>/10)
+                                </h3>
+                                <button onclick="clearComparisonDesk()" class="text-xs font-bold text-rose-500 hover:text-rose-700 transition">Clear Selected</button>
+                            </div>
+
+                            <div id="comparison-desk-container">
+                                <!-- Populated dynamically with cards -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+            <div class="max-w-7xl mx-auto px-4">
+                <p class="font-bold text-[#3063A5]">BYU-Idaho Pre-Health Advising Portal</p>
+                <p class="mt-1">Informed by the core competencies frameworks of AAMC, ADEA, and BYU-I Student Success Advising Standards.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ADD NEW STUDENT MODAL (DIALOG BOX) -->
+    <div id="student-modal" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-blue-50">
+                <h3 class="text-base font-bold text-[#3063A5]">Add Student to BYU-I Advisor Cohort</h3>
+                <button onclick="closeNewStudentModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Full Student Name</label>
+                        <input type="text" id="modal-name" placeholder="Johnathan Smith" class="w-full border border-slate-200 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Career Pathway</label>
+                        <select id="modal-track" class="w-full border border-slate-200 rounded-lg p-2 text-sm bg-white font-semibold">
+                            <option value="Pre-Med">Pre-Medical</option>
+                            <option value="Pre-Dent">Pre-Dental</option>
+                            <option value="Pre-Opt">Pre-Optometry</option>
+                            <option value="Pre-Pharm">Pharmacy</option>
+                            <option value="Pre-PT">Pre-Physical Therapy</option>
+                            <option value="Pre-PA">Pre-Physician Assistant</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Cumulative GPA</label>
+                        <input type="number" step="0.01" id="modal-gpa" placeholder="3.80" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Science GPA</label>
+                        <input type="number" step="0.01" id="modal-science-gpa" placeholder="3.75" class="w-full border border-slate-200 rounded-lg p-2 text-sm font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Shadowing Hours</label>
+                        <input type="number" id="modal-shadowing" placeholder="50" class="w-full border border-slate-200 rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Clinical Hours</label>
+                        <input type="number" id="modal-clinical" placeholder="150" class="w-full border border-slate-200 rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1" title="Includes church/ecclesiastical service up to 100 maximum conversion.">Service Hours</label>
+                        <input type="number" id="modal-service" placeholder="100" class="w-full border border-slate-200 rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Leadership Hours</label>
+                        <input type="number" id="modal-leadership" placeholder="40" class="w-full border border-slate-200 rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Research Hours</label>
+                        <input type="number" id="modal-research" placeholder="0" class="w-full border border-slate-200 rounded-lg p-2 text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-end space-x-2">
+                <button onclick="closeNewStudentModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-semibold hover:bg-white transition">Cancel</button>
+                <button onclick="saveNewStudentModal()" class="px-4 py-2 bg-[#3063A5] hover:bg-byui-blue-dark text-white rounded-lg text-sm font-semibold transition shadow-md">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM ADVISOR MESSAGE MODAL (NO ALERT GUARDRAIL) -->
+    <div id="custom-message-modal" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center z-55 p-4">
+        <div class="bg-white w-full max-w-sm rounded-xl shadow-xl p-6 text-center space-y-4 animate-in fade-in duration-200">
+            <div class="p-3 bg-blue-50 text-[#3063A5] rounded-full w-12 h-12 flex items-center justify-center mx-auto">
+                <i data-lucide="info" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h4 id="message-modal-title" class="text-base font-bold text-slate-900">Success</h4>
+                <p id="message-modal-text" class="text-xs text-slate-500 mt-1">Actions performed successfully.</p>
+            </div>
+            <button onclick="closeMessageModal()" class="w-full py-2 bg-[#3063A5] hover:bg-byui-blue-dark text-white text-xs font-bold rounded-lg transition">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- INITIALIZATION DATA & SCRIPTS -->
+    <script>
+        // Global Portal State
+        let currentRole = 'advisor'; // 'advisor' | 'student'
+        let activeStudentId = 'st-1'; // Tracks active student in Student view
+        let comparedSchoolIds = []; // Tracks compared school IDs (Max 10)
+
+        // Seed Cohort Data representing BYU-I candidates
+        let cohort = [
+            {
+                id: "st-1",
+                name: "Alexander Mercer",
+                track: "Pre-Med",
+                gpa: 3.89,
+                scienceGpa: 3.85,
+                examScore: 516,
+                examType: "MCAT",
+                shadowing: 80,
+                clinical: 240,
+                service: 250, // High service hours including missionary service conversions
+                leadership: 60,
+                research: 120,
+                personalStatement: "The scent of antiseptic was the backdrop to my Saturdays. Seeing Mrs. Patel's anxiety dissipate when we translated...",
+                notes: "Alexander, your missionary service in Guatemala converts brilliantly here. Research depth makes you highly competitive for research-focused Utah/Washington MD tracks. Work on articulating details of your biology research.",
+                competencies: {
+                    empathy: true,
+                    ethics: true,
+                    teamwork: true,
+                    resilience: true,
+                    growth: true,
+                    dexterity: false
+                }
+            },
+            {
+                id: "st-2",
+                name: "Brenda Chen",
+                track: "Pre-Dent",
+                gpa: 3.61,
+                scienceGpa: 3.52,
+                examScore: 21,
+                examType: "DAT",
+                shadowing: 110,
+                clinical: 95,
+                service: 180,
+                leadership: 30,
+                research: 40,
+                personalStatement: "The high-pitched hum of the dental handpiece always made patients tingle, but when Mrs. Rodriguez held my hand...",
+                notes: "Brenda, outstanding manual dexterity proof. Let's aim to bolster clinical volunteering slightly over the summer break at Madison Memorial Hospital to match local benchmark goals.",
+                competencies: {
+                    empathy: true,
+                    ethics: true,
+                    teamwork: false,
+                    resilience: true,
+                    growth: false,
+                    dexterity: true
+                }
+            },
+            {
+                id: "st-3",
+                name: "Marcus Aurelius",
+                track: "Pre-PT",
+                gpa: 3.42,
+                scienceGpa: 3.30,
+                examScore: 305,
+                examType: "GRE",
+                shadowing: 40,
+                clinical: 280,
+                service: 320,
+                leadership: 70,
+                research: 0,
+                personalStatement: "",
+                notes: "Great leadership experience. We need to raise physical therapy specific shadowing to at least 50 hours minimum for regional ISU/U-of-Utah requirements.",
+                competencies: {
+                    empathy: true,
+                    ethics: true,
+                    teamwork: true,
+                    resilience: false,
+                    growth: true,
+                    dexterity: false
+                }
+            },
+            {
+                id: "st-4",
+                name: "Sophia Martinez",
+                track: "Pre-Pharm",
+                gpa: 3.21,
+                scienceGpa: 3.05,
+                examScore: 0,
+                examType: "None",
+                shadowing: 15,
+                clinical: 45,
+                service: 60,
+                leadership: 10,
+                research: 10,
+                personalStatement: "",
+                notes: "Needs comprehensive action plan on science GPA metrics. Let's schedule a deep-dive academic planning session at the Manwaring Center advisor offices.",
+                competencies: {
+                    empathy: false,
+                    ethics: true,
+                    teamwork: false,
+                    resilience: false,
+                    growth: true,
+                    dexterity: false
+                }
+            }
+        ];
+
+        // Expanded Database containing ATSU Arizona, Noorda, Rocky Mountain and other requested regional options
+        const schoolArchetypes = [
+            {
+                id: "sch-1",
+                name: "University of Utah School of Medicine",
+                field: "Medical",
+                type: "Primary Care / Underserved",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.75",
+                description: "Deeply aligned with mountain-west rural medicine, regional public healthcare infrastructure, and safety-net clinic programs.",
+                missionStatement: "To serve the people of Utah and the Mountain West by providing distinguished medical education, pioneering research, and compassionate clinical care, particularly to vulnerable regional cohorts.",
+                byuiAdvice: "Excellent fit if you have rural community clinical hours or regional volunteer experience. Highlight Idaho/Utah connection."
+            },
+            {
+                id: "sch-2",
+                name: "Idaho College of Osteopathic Medicine (ICOM)",
+                field: "Medical",
+                type: "Primary Care / Underserved",
+                region: "West",
+                state: "ID",
+                avgGPA: "3.60",
+                description: "Idaho's first medical school, focused on addressing the acute physician shortage in Idaho, Montana, Wyoming, and the Dakotas.",
+                missionStatement: "To train osteopathic physicians prepared for caring for patients in the Appalachian and Mountain West regions, with a profound emphasis on primary care, rural medicine, and underserved populations.",
+                byuiAdvice: "As an Idaho-based institution, ICOM actively looks for BYUI graduates. Emphasize osteopathic alignment and desires to practice in regional clinics."
+            },
+            {
+                id: "sch-3",
+                name: "University of Washington School of Medicine",
+                field: "Medical",
+                type: "Research & Discovery",
+                region: "West",
+                state: "WA",
+                avgGPA: "3.82",
+                description: "Renowned WWAMI program offering specialized training setups, with outstanding public health tracks and heavy research integration.",
+                missionStatement: "To improve health in the Pacific Northwest and beyond through outstanding medical education, internationally recognized research, and community-centered clinical training.",
+                byuiAdvice: "If applying to the Idaho track (WWAMI), heavily leverage Idaho residency and local Rexburg community service clinical milestones."
+            },
+            {
+                id: "sch-4",
+                name: "Rocky Mountain University of Health Professions (PA)",
+                field: "Physician Assistant",
+                type: "Primary Care / Underserved",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.55",
+                description: "Dedicated to preparing skilled PAs to work collaboratively in diverse healthcare settings, emphasizing evidence-based patient-first interventions.",
+                missionStatement: "To educate clinicians who deliver high-quality, compassionate, and evidence-informed care, serving local and global underserved populations with professionalism and collaborative integrity.",
+                byuiAdvice: "Great for students with robust service mission portfolios. Highlight your collaborative experiences and evidence-informed preparation in Idaho labs."
+            },
+            {
+                id: "sch-5",
+                name: "Idaho State University (ISU) PA Program",
+                field: "Physician Assistant",
+                type: "Primary Care / Underserved",
+                region: "West",
+                state: "ID",
+                avgGPA: "3.50",
+                description: "The primary PA training institution within Idaho, with campuses in Pocatello and Meridian.",
+                missionStatement: "To prepare diverse and compassionate physician assistants to provide quality healthcare, with a focus on underserved and rural areas of Idaho and the nation.",
+                byuiAdvice: "Crucial regional match. Highlight your local Idaho ties, outdoor adaptability, and plans to fill Idaho's rural provider shortage gaps."
+            },
+            {
+                id: "sch-6",
+                name: "University of Utah Physician Assistant Program (UPAP)",
+                field: "Physician Assistant",
+                type: "Community & Service Outreach",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.65",
+                description: "Consistently ranked as one of the best PA programs nationally, with a robust focus on underserved populations.",
+                missionStatement: "To produce compassionate, clinically excellent PAs who are prepared to serve communities in need, with a focus on primary care and reducing healthcare disparities.",
+                byuiAdvice: "UPAP deeply respects humanitarian service. Highlight your conversion of full-time service missions or local clinical volunteer hours."
+            },
+            {
+                id: "sch-7",
+                name: "Roseman University College of Dental Medicine",
+                field: "Dental",
+                type: "Invention & Technology",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.52",
+                description: "Highly aligned with block-curriculum teaching models. Excels in collaborative dental practice technology, dental ethics, and community clinics.",
+                missionStatement: "To provide an innovative, team-based dental education that prepares clinically excellent, ethical, and community-minded dentists who excel in patient-centered, lifelong oral health stewardship.",
+                byuiAdvice: "Outstanding fit for BYU-I applicants. Emphasize team-based dynamics, ethical values matching the Honor Code, and manual dexterity skills."
+            },
+            {
+                id: "sch-8",
+                name: "Creighton University School of Dentistry",
+                field: "Dental",
+                type: "Community & Service Outreach",
+                region: "Midwest",
+                state: "NE",
+                avgGPA: "3.60",
+                description: "Jesuit-aligned institution welcoming massive cohorts of Rocky Mountain students. Strong emphasis on service to the community and global dental missions.",
+                missionStatement: "Grounded in Jesuit values, we educate dental professionals who provide excellent, ethical, and compassionate care to diverse populations, with a profound dedication to social justice and community service.",
+                byuiAdvice: "Creighton values service-oriented applicants. Point out any service missions, ecclesiastical leadership, and hands-on dental volunteering."
+            },
+            {
+                id: "sch-9",
+                name: "Oregon Health & Science University School of Dentistry",
+                field: "Dental",
+                type: "Research & Discovery",
+                region: "West",
+                state: "OR",
+                avgGPA: "3.68",
+                description: "Advanced dental center emphasizing biomedical research, comprehensive oral surgery foundations, and multi-discipline dentistry integration.",
+                missionStatement: "To provide educational excellence in oral health, to advance diagnostic and biomaterials research, and to offer dedicated service to our regional communities.",
+                byuiAdvice: "Ensure your application highlights solid academic and science GPAs. Mention biology research hours completed in BYU-Idaho's laboratories."
+            },
+            {
+                id: "sch-10",
+                name: "Idaho State University (ISU) PT Program",
+                field: "Physical Therapy",
+                type: "Primary Care / Underserved",
+                region: "West",
+                state: "ID",
+                avgGPA: "3.55",
+                description: "Highly reputable regional physical therapy program offering great clinical rotation opportunities throughout the Intermountain West.",
+                missionStatement: "To promote physical well-being through proactive preventative movement strategies, improving physical therapy clinical access across local and rural Idaho communities.",
+                byuiAdvice: "Highlight local Idaho residency and any clinical physical therapy observation hours completed in southeastern Idaho clinics."
+            },
+            {
+                id: "sch-11",
+                name: "University of Utah DPT Program",
+                field: "Physical Therapy",
+                type: "Research & Discovery",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.62",
+                description: "Excellent academic PT center utilizing advanced diagnostic movement analysis labs to integrate clinical skills with scientific updates.",
+                missionStatement: "Pioneering therapeutic movement discovery and data-driven rehabilitation pathways to restore peak physical capacity and improve community health.",
+                byuiAdvice: "Strong option for academic-focused students. Frame your biology/physics coursework at BYU-I as the backbone of your movement science curiosity."
+            },
+            {
+                id: "sch-12",
+                name: "Pacific University College of Optometry",
+                field: "Optometry",
+                type: "Community & Service Outreach",
+                region: "West",
+                state: "OR",
+                avgGPA: "3.48",
+                description: "Features advanced optometric diagnostics, pediatric vision research, and outreach programs for underserved agricultural workers.",
+                missionStatement: "To deliver exceptional optometric education that integrates advanced clinical practice with service, nurturing empathetic leaders dedicated to preserving visual health globally.",
+                byuiAdvice: "If you served an overseas mission, link your cross-cultural communication to their international service mission goals."
+            },
+            {
+                id: "sch-13",
+                name: "Midwestern University Arizona College of Optometry",
+                field: "Optometry",
+                type: "Invention & Technology",
+                region: "South",
+                state: "AZ",
+                avgGPA: "3.52",
+                description: "Equipped with state-of-the-art vision laboratories, specialized clinics, and virtual reality clinical training tools.",
+                missionStatement: "We exist to prepare students to enter the optometric profession as highly competent, compassionate, and clinically advanced practitioners utilizing cutting-edge ophthalmic technologies.",
+                byuiAdvice: "Highlight tech-oriented science labs completed at BYUI and any advanced technology exposure gathered during optical shadowing."
+            },
+            {
+                id: "sch-14",
+                name: "Idaho State University College of Pharmacy",
+                field: "Pharmacy",
+                type: "Primary Care / Underserved",
+                region: "West",
+                state: "ID",
+                avgGPA: "3.40",
+                description: "A long-standing regional pharmacy center preparing front-line clinical medication advisors and therapy managers.",
+                missionStatement: "To educate competent, compassionate pharmacists who maximize therapeutic health outcomes in underserved rural and community populations.",
+                byuiAdvice: "Emphasize plans to practice community pharmacy in regional areas or manage clinical therapies in mountain-west community hubs."
+            },
+            {
+                id: "sch-15",
+                name: "Roseman University College of Pharmacy",
+                field: "Pharmacy",
+                type: "Invention & Technology",
+                region: "South",
+                state: "NV",
+                avgGPA: "3.45",
+                description: "Utilizes an immersive 3-year block-curriculum model that allows students to focus entirely on one subject at a time.",
+                missionStatement: "To offer a dynamic, accelerated pharmacy education that fosters collaborative clinical decision-making, professional ethics, and advanced pharmaceutical technology care.",
+                byuiAdvice: "Be prepared to speak on how BYU-Idaho's rigorous, fast-paced semester structure has trained you to thrive in Roseman's block-curriculum."
+            },
+            {
+                id: "sch-16",
+                name: "Noorda College of Osteopathic Medicine (Noorda-COM)",
+                field: "Medical",
+                type: "Primary Care / Underserved",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.55",
+                description: "An innovative, tech-forward osteopathic medical school in Provo, UT with a unique pod-based, self-directed curriculum.",
+                missionStatement: "To empower our students with the essential personal and professional skills needed to be competent, confident, and compassionate osteopathic physicians who are dedicated to meeting healthcare challenges of the communities in which they serve.",
+                byuiAdvice: "Noorda-COM's Provo location makes it an exceptionally popular choice for BYUI applicants. Emphasize tech-readiness, self-motivation, and active community service."
+            },
+            {
+                id: "sch-17",
+                name: "Rocky Mountain University of Health Professions (DPT)",
+                field: "Physical Therapy",
+                type: "Invention & Technology",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.58",
+                description: "One of the premier hybrid/accelerated DPT programs in Utah. Emphasizes evidence-based research and transformative clinical inquiry.",
+                missionStatement: "To develop healthcare professionals and leaders who advance evidence-based practice and improve the human condition through outstanding graduate education and service.",
+                byuiAdvice: "RMU appreciates applicants who have clear clinical goals and strong evidence of professional maturity. Highlight research or senior projects from BYUI."
+            },
+            {
+                id: "sch-18",
+                name: "Rocky Mountain University of Health Professions (OD)",
+                field: "Optometry",
+                type: "Community & Service Outreach",
+                region: "South",
+                state: "UT",
+                avgGPA: "3.45",
+                description: "A newly established, high-demand Doctor of Optometry program located in Provo, Utah.",
+                missionStatement: "To prepare skilled optometric physicians as leaders and role models who define excellence in optometric medicine, and are deeply committed to compassionate, respectful patient care, ethical research, and underserved community service.",
+                byuiAdvice: "Being a local Utah optometry school, this is a prime target for BYUI pre-optometry students. Outline active clinical shadowing and service-oriented clinical experience."
+            },
+            {
+                id: "sch-19",
+                name: "A.T. Still University - Arizona School of Dentistry & Oral Health (ASDOH)",
+                field: "Dental",
+                type: "Community & Service Outreach",
+                region: "South",
+                state: "AZ",
+                avgGPA: "3.43",
+                description: "The first dental school in Arizona, famous for incorporating a public health curriculum where many graduates also earn a Master of Public Health (MPH).",
+                missionStatement: "To educate compassionate, community-minded oral health providers to lead the profession through service, integrative whole-person care, and a strong commitment to public health principles.",
+                byuiAdvice: "Loves public service! ASDOH is famously selective for applicants with high volunteer/community hours. Describe your church mission or humanitarian works as public health assets."
+            },
+            {
+                id: "sch-20",
+                name: "A.T. Still University - School of Osteopathic Medicine in Arizona (SOMA)",
+                field: "Medical",
+                type: "Primary Care / Underserved",
+                region: "South",
+                state: "AZ",
+                avgGPA: "3.55",
+                description: "Features a unique 1+3 program layout where students spend their first year in Mesa and years 2-4 in Community Health Centers (CHCs) nationwide.",
+                missionStatement: "To prepare physicians dedicated to serving underserved populations through a community-based, patient-centered osteopathic medical curriculum integrated with community health centers.",
+                byuiAdvice: "Perfect DO fit if you have high service hours. Highlight any experiences working in community programs or safety-net medical spaces."
+            },
+            {
+                id: "sch-21",
+                name: "A.T. Still University - Arizona School of Health Sciences (ASHS) (PA)",
+                field: "Physician Assistant",
+                type: "Primary Care / Underserved",
+                region: "South",
+                state: "AZ",
+                avgGPA: "3.52",
+                description: "Top-tier PA school focused on whole-person healthcare, preventive medicine, and community healthcare integrations.",
+                missionStatement: "To prepare highly competent, culturally adaptable, community-responsive physician assistants to provide quality medical care to diverse populations.",
+                byuiAdvice: "Great target for Arizona-bound BYUI students. Showcase clinical roles that require cross-cultural communication or translation skills."
+            },
+            {
+                id: "sch-22",
+                name: "A.T. Still University (ASHS) (PT)",
+                field: "Physical Therapy",
+                type: "Invention & Technology",
+                region: "South",
+                state: "AZ",
+                avgGPA: "3.50",
+                description: "Mesa-based program that trains compassionate movement specialists utilizing high-tech biomechanics simulators.",
+                missionStatement: "Dedicated to preparing reflective, evidence-based physical therapists who provide exemplary care, promote health, and advance clinical science.",
+                byuiAdvice: "Emphasize physics and biomechanics preparation from BYU-Idaho's rigorous undergraduate sequence in your written statements."
+            }
+        ];
+
+        // Hook Templates
+        const hookTemplates = {
+            clinical: "The high-pitched hum of the dental handpiece always made patients tense up, but when Mrs. Rodriguez grasped my hand during her surgical extraction, I witnessed physical distress give way to mutual trust. Standing in that busy free-clinic space, I realized that modern healthcare is as much about restoring comforting reassurance as it is about clinical precision. This moment catalyzed my determination to pursue...",
+            personal: "Growing up in a remote farming region, clinical specialists were a distant luxury. When my younger brother suffered a complicated compound fracture, it was the local family nurse practitioner who coordinated his immediate treatment. Her calm, decisive manner during moments of sheer panic reshaped how I understood medical leadership. I saw firsthand that local communities need committed practitioners who are rooted in...",
+            service: "During my twenty-four month service mission, I spent hours visiting small municipal communities where language barriers frequently restricted basic healthcare access. Translating medical paperwork for a migrant family inside a crowded clinic taught me that clinical treatment succeeds only when communication is transparent. This foundational stewardship reshaped my focus, aligning my desire to...",
+            academic: "Looking down the dual-view microscope at cell strain-234, I watched the fluorescent molecular probes illuminate targeted cancerous pathways. For months, our biology lab had faced setback after setback, but this minute triumph of scientific inquiry showed me the beauty of perseverance. Yet, I found myself longing to connect these benchtop cellular events directly to human faces, propelling my transition to..."
+        };
+
+        // Switch System Roles
+        function toggleRole(role) {
+            currentRole = role;
+            
+            const btnAdvisor = document.getElementById('role-btn-advisor');
+            const btnStudent = document.getElementById('role-btn-student');
+            
+            const navAdvisor = document.getElementById('nav-group-advisor');
+            const navStudent = document.getElementById('nav-group-student');
+
+            if (role === 'advisor') {
+                btnAdvisor.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 bg-white text-[#3063A5] shadow-xs";
+                btnStudent.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 text-slate-500 hover:text-slate-800";
+                
+                navAdvisor.classList.remove('hidden');
+                navStudent.classList.add('hidden');
+                
+                switchTab('dashboard');
+            } else {
+                btnStudent.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 bg-white text-[#3063A5] shadow-xs";
+                btnAdvisor.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 text-slate-500 hover:text-slate-800";
+                
+                navStudent.classList.remove('hidden');
+                navAdvisor.classList.add('hidden');
+
+                populateStudentSelector();
+                switchTab('student-dashboard');
+            }
+        }
+
+        // Tab Switching logic
+        function switchTab(tabId) {
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-evaluator').classList.add('hidden');
+            document.getElementById('tab-student-dashboard').classList.add('hidden');
+            document.getElementById('tab-statement').classList.add('hidden');
+            document.getElementById('tab-schools').classList.add('hidden');
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            const navIds = ['dashboard', 'evaluator', 'student-dashboard', 'statement', 'schools', 'schools-student'];
+            navIds.forEach(id => {
+                const navBtn = document.getElementById('nav-' + id);
+                if (navBtn) {
+                    if (id === tabId || (id === 'schools-student' && tabId === 'schools')) {
+                        navBtn.className = "px-3 py-2 rounded-lg text-xs font-bold transition-colors bg-blue-50 text-[#3063A5]";
+                    } else {
+                        navBtn.className = "px-3 py-2 rounded-lg text-xs font-bold transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-50";
+                    }
+                }
+            });
+
+            if (tabId === 'dashboard') {
+                renderDashboard();
+            } else if (tabId === 'student-dashboard') {
+                loadStudentDashboardData();
+            } else if (tabId === 'schools') {
+                onFilterParamsChange();
+                renderComparisonDesk();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function showMessage(title, text) {
+            document.getElementById('message-modal-title').innerText = title;
+            document.getElementById('message-modal-text').innerText = text;
+            document.getElementById('custom-message-modal').classList.remove('hidden');
+        }
+        function closeMessageModal() {
+            document.getElementById('custom-message-modal').classList.add('hidden');
+        }
+
+        function populateStudentSelector() {
+            const selector = document.getElementById('student-selector');
+            selector.innerHTML = '';
+            cohort.forEach(student => {
+                const opt = document.createElement('option');
+                opt.value = student.id;
+                opt.innerText = student.name;
+                if (student.id === activeStudentId) {
+                    opt.selected = true;
+                }
+                selector.appendChild(opt);
+            });
+        }
+
+        function changeActiveStudentSession() {
+            activeStudentId = document.getElementById('student-selector').value;
+            loadStudentDashboardData();
+        }
+
+        // LOAD STUDENT DASHBOARD SPECIFIC METRICS
+        function loadStudentDashboardData() {
+            const student = cohort.find(s => s.id === activeStudentId);
+            if (!student) return;
+
+            document.getElementById('student-welcome-name').innerText = "Welcome, " + student.name;
+            document.getElementById('student-target-label').innerText = "Pathway Track: " + student.track;
+
+            document.getElementById('student-gpa').value = student.gpa;
+            document.getElementById('student-science-gpa').value = student.scienceGpa;
+            document.getElementById('student-exam-type').value = student.examType || "MCAT";
+            document.getElementById('student-exam-score').value = student.examScore || 0;
+            document.getElementById('student-shadowing').value = student.shadowing;
+            document.getElementById('student-clinical').value = student.clinical;
+            document.getElementById('student-service').value = student.service;
+            document.getElementById('student-leadership').value = student.leadership;
+            document.getElementById('student-research').value = student.research;
+
+            document.getElementById('student-comp-empathy').checked = !!student.competencies.empathy;
+            document.getElementById('student-comp-ethics').checked = !!student.competencies.ethics;
+            document.getElementById('student-comp-teamwork').checked = !!student.competencies.teamwork;
+            document.getElementById('student-comp-resilience').checked = !!student.competencies.resilience;
+            document.getElementById('student-comp-growth').checked = !!student.competencies.growth;
+            document.getElementById('student-comp-dexterity').checked = !!student.competencies.dexterity;
+
+            document.getElementById('essay-hook-input').value = student.personalStatement || "";
+            document.getElementById('essay-hook-input').dispatchEvent(new Event('input'));
+
+            const feedbackText = student.notes || "Advising feedback not recorded. Please schedule an advising slot in the Clarke Building offices.";
+            document.getElementById('student-advisor-notes-p').innerText = `"${feedbackText}"`;
+
+            const diagnosis = runHolisticScoringEngine(student);
+            document.getElementById('student-visual-rating').innerText = diagnosis.rating;
+            document.getElementById('student-visual-score').innerText = "BYU-I Admissions Readiness: " + diagnosis.score + "/100";
+
+            const ratingEl = document.getElementById('student-visual-rating');
+            if (diagnosis.rating === "Outstanding Applicant") {
+                ratingEl.className = "text-2xl font-black text-emerald-600 mt-2";
+            } else if (diagnosis.rating === "Highly Qualified") {
+                ratingEl.className = "text-2xl font-black text-[#3063A5] mt-2";
+            } else if (diagnosis.rating === "Developing Candidate") {
+                ratingEl.className = "text-2xl font-black text-amber-500 mt-2";
+            } else {
+                ratingEl.className = "text-2xl font-black text-rose-500 mt-2";
+            }
+
+            lucide.createIcons();
+        }
+
+        function saveStudentSelfReport() {
+            const studentIndex = cohort.findIndex(s => s.id === activeStudentId);
+            if (studentIndex === -1) return;
+
+            cohort[studentIndex].gpa = parseFloat(document.getElementById('student-gpa').value) || 0;
+            cohort[studentIndex].scienceGpa = parseFloat(document.getElementById('student-science-gpa').value) || 0;
+            cohort[studentIndex].examType = document.getElementById('student-exam-type').value;
+            cohort[studentIndex].examScore = parseInt(document.getElementById('student-exam-score').value) || 0;
+            cohort[studentIndex].shadowing = parseInt(document.getElementById('student-shadowing').value) || 0;
+            cohort[studentIndex].clinical = parseInt(document.getElementById('student-clinical').value) || 0;
+            cohort[studentIndex].service = parseInt(document.getElementById('student-service').value) || 0;
+            cohort[studentIndex].leadership = parseInt(document.getElementById('student-leadership').value) || 0;
+            cohort[studentIndex].research = parseInt(document.getElementById('student-research').value) || 0;
+
+            cohort[studentIndex].competencies = {
+                empathy: document.getElementById('student-comp-empathy').checked,
+                ethics: document.getElementById('student-comp-ethics').checked,
+                teamwork: document.getElementById('student-comp-teamwork').checked,
+                resilience: document.getElementById('student-comp-resilience').checked,
+                growth: document.getElementById('student-comp-growth').checked,
+                dexterity: document.getElementById('student-comp-dexterity').checked
+            };
+
+            cohort[studentIndex].personalStatement = document.getElementById('essay-hook-input').value;
+
+            showMessage("BYU-I Portfolio Updated", "Your entries have been saved and instantly synchronized with Rexburg's advisor command database.");
+            loadStudentDashboardData();
+        }
+
+        // RENDER ADVISOR COHORT TABLE & HIGHLIGHTS
+        function renderDashboard() {
+            renderStudentTable();
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('stat-total-students').innerText = cohort.length;
+            
+            let highlyQualifiedCount = 0;
+            let sumScienceGpa = 0;
+            let alertCount = 0;
+
+            cohort.forEach(student => {
+                const scoreObj = runHolisticScoringEngine(student);
+                if (scoreObj.rating === "Highly Qualified" || scoreObj.rating === "Outstanding Applicant") {
+                    highlyQualifiedCount++;
+                }
+                if (scoreObj.rating === "Uninitiated / Weak Plan") {
+                    alertCount++;
+                }
+                sumScienceGpa += parseFloat(student.scienceGpa);
+            });
+
+            const avgSciGpa = cohort.length > 0 ? (sumScienceGpa / cohort.length).toFixed(2) : "0.00";
+            
+            document.getElementById('stat-highly-qualified').innerText = highlyQualifiedCount;
+            document.getElementById('stat-avg-gpa').innerText = avgSciGpa;
+            document.getElementById('stat-alert-students').innerText = alertCount;
+        }
+
+        function renderStudentTable() {
+            const query = document.getElementById('student-search-input').value.toLowerCase();
+            const filterPathway = document.getElementById('filter-pathway').value;
+            const tableBody = document.getElementById('student-table-body');
+            
+            tableBody.innerHTML = '';
+
+            cohort.forEach(student => {
+                const matchesSearch = student.name.toLowerCase().includes(query) || student.track.toLowerCase().includes(query);
+                const matchesPathway = (filterPathway === 'all') || (student.track === filterPathway);
+
+                if (matchesSearch && matchesPathway) {
+                    const diagnosis = runHolisticScoringEngine(student);
+                    
+                    let badgeColor = "bg-slate-100 text-slate-800 border-slate-200";
+                    if (diagnosis.rating === "Outstanding Applicant") {
+                        badgeColor = "bg-emerald-50 text-emerald-800 border-emerald-200";
+                    } else if (diagnosis.rating === "Highly Qualified") {
+                        badgeColor = "bg-blue-50 text-blue-900 border-blue-200";
+                    } else if (diagnosis.rating === "Developing Candidate") {
+                        badgeColor = "bg-amber-50 text-amber-800 border-amber-200";
+                    } else if (diagnosis.rating === "Uninitiated / Weak Plan") {
+                        badgeColor = "bg-rose-50 text-rose-800 border-rose-200";
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50/50 transition duration-150 cursor-pointer";
+                    tr.setAttribute("onclick", `loadToCalculator('${student.id}')`);
+                    tr.innerHTML = `
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-slate-900">${student.name}</div>
+                            <div class="text-xs text-slate-500 font-semibold">${student.track} Candidate</div>
+                        </td>
+                        <td class="py-4 px-6 text-center font-semibold">
+                            <div class="font-mono font-bold text-[#3063A5]">${student.gpa.toFixed(2)}</div>
+                            <div class="text-[11px] text-slate-400 font-mono">Sci: ${student.scienceGpa.toFixed(2)}</div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="text-xs text-slate-700 font-semibold">Shadow: <span class="font-mono text-[#3063A5]">${student.shadowing}h</span></div>
+                            <div class="text-[11px] text-slate-400">Clinical: <span class="font-mono">${student.clinical}h</span></div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="text-xs text-slate-700 font-bold text-emerald-700">${student.service}h</div>
+                            <div class="text-[10px] text-slate-400">incl. Service/Mission</div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <div class="text-xs text-slate-700">Lead: <span class="font-mono">${student.leadership}h</span></div>
+                            <div class="text-[11px] text-slate-400">Research: <span class="font-mono">${student.research}h</span></div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold border ${badgeColor}">
+                                ${diagnosis.rating}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right space-x-1" onclick="event.stopPropagation();">
+                            <button onclick="loadToCalculator('${student.id}')" class="p-1.5 hover:bg-slate-100 rounded text-blue-900 transition">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteStudent('${student.id}')" class="p-1.5 hover:bg-rose-50 rounded text-rose-500 hover:text-rose-700 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        // HOLISTIC RATING ENGINE
+        function runHolisticScoringEngine(student) {
+            let score = 0;
+            
+            const gpa = parseFloat(student.gpa);
+            const scienceGpa = parseFloat(student.scienceGpa);
+            
+            if (gpa >= 3.8) score += 20;
+            else if (gpa >= 3.5) score += 15;
+            else if (gpa >= 3.2) score += 10;
+            else score += 5;
+
+            if (scienceGpa >= 3.7) score += 20;
+            else if (scienceGpa >= 3.4) score += 15;
+            else if (scienceGpa >= 3.0) score += 10;
+            else score += 3;
+
+            const shadow = parseInt(student.shadowing);
+            if (shadow >= 80) score += 15;
+            else if (shadow >= 50) score += 12;
+            else if (shadow >= 20) score += 8;
+            else score += 2;
+
+            const clinical = parseInt(student.clinical);
+            if (clinical >= 150) score += 15;
+            else if (clinical >= 80) score += 10;
+            else if (clinical >= 30) score += 5;
+            else score += 1;
+
+            const service = parseInt(student.service);
+            if (service >= 120) score += 15;
+            else if (service >= 60) score += 10;
+            else if (service >= 20) score += 5;
+            else score += 2;
+
+            const leadership = parseInt(student.leadership);
+            if (leadership >= 40) score += 10;
+            else if (leadership >= 15) score += 5;
+            else score += 1;
+
+            let rating = "Uninitiated / Weak Plan";
+            if (score >= 85) {
+                rating = "Outstanding Applicant";
+            } else if (score >= 65) {
+                rating = "Highly Qualified";
+            } else if (score >= 40) {
+                rating = "Developing Candidate";
+            }
+
+            return {
+                score: score,
+                rating: rating
+            };
+        }
+
+        // LOAD FROM TABLE TO EVALUATOR TAB
+        function loadToCalculator(id) {
+            const student = cohort.find(s => s.id === id);
+            if (!student) return;
+
+            document.getElementById('calc-name').value = student.name;
+            document.getElementById('calc-track').value = student.track;
+            document.getElementById('calc-gpa').value = student.gpa;
+            document.getElementById('calc-science-gpa').value = student.scienceGpa;
+            document.getElementById('calc-shadowing').value = student.shadowing;
+            document.getElementById('calc-clinical').value = student.clinical;
+            document.getElementById('calc-service').value = student.service;
+            document.getElementById('calc-leadership').value = student.leadership;
+            document.getElementById('calc-research').value = student.research;
+            document.getElementById('calc-exam-score').value = student.examScore || 0;
+            document.getElementById('calc-exam-type').value = student.examType || "MCAT";
+            document.getElementById('calc-notes').value = student.notes || "";
+
+            document.getElementById('comp-empathy').checked = !!student.competencies.empathy;
+            document.getElementById('comp-ethics').checked = !!student.competencies.ethics;
+            document.getElementById('comp-teamwork').checked = !!student.competencies.teamwork;
+            document.getElementById('comp-resilience').checked = !!student.competencies.resilience;
+            document.getElementById('comp-growth').checked = !!student.competencies.growth;
+            document.getElementById('comp-manual-dex').checked = !!student.competencies.dexterity;
+
+            switchTab('evaluator');
+            calculateHolisticScore();
+        }
+
+        // CALCULATE PROFILE & SUGGEST ADVISING PLAN
+        function calculateHolisticScore() {
+            const name = document.getElementById('calc-name').value;
+            const track = document.getElementById('calc-track').value;
+            const gpa = parseFloat(document.getElementById('calc-gpa').value) || 0;
+            const scienceGpa = parseFloat(document.getElementById('calc-science-gpa').value) || 0;
+            const shadowing = parseInt(document.getElementById('calc-shadowing').value) || 0;
+            const clinical = parseInt(document.getElementById('calc-clinical').value) || 0;
+            const service = parseInt(document.getElementById('calc-service').value) || 0;
+            const leadership = parseInt(document.getElementById('calc-leadership').value) || 0;
+            const research = parseInt(document.getElementById('calc-research').value) || 0;
+
+            const tempStudent = {
+                name, track, gpa, scienceGpa, shadowing, clinical, service, leadership, research,
+                competencies: {}
+            };
+
+            const diagnosis = runHolisticScoringEngine(tempStudent);
+
+            document.getElementById('report-name').innerText = name || "Unassigned";
+            document.getElementById('report-track').innerText = "Pathway: " + track;
+            document.getElementById('report-numeric-score').innerText = "Admissions Readiness Index: " + diagnosis.score + "/100";
+            document.getElementById('report-grade-badge').innerText = diagnosis.rating;
+
+            const badge = document.getElementById('report-grade-badge');
+            if (diagnosis.rating === "Outstanding Applicant") {
+                badge.className = "text-2xl font-black mt-2 tracking-tight text-center text-emerald-400";
+            } else if (diagnosis.rating === "Highly Qualified") {
+                badge.className = "text-2xl font-black mt-2 tracking-tight text-center text-white";
+            } else if (diagnosis.rating === "Developing Candidate") {
+                badge.className = "text-2xl font-black mt-2 tracking-tight text-center text-amber-350";
+            } else {
+                badge.className = "text-2xl font-black mt-2 tracking-tight text-center text-rose-400";
+            }
+
+            updateSubCategoryBadge("badge-gpa", gpa >= 3.6 ? "Outstanding" : (gpa >= 3.2 ? "Competitive" : "Action Needed"));
+            updateSubCategoryBadge("badge-shadowing", shadowing >= 80 ? "Outstanding" : (shadowing >= 45 ? "Competitive" : "Action Needed"));
+            updateSubCategoryBadge("badge-clinical", clinical >= 150 ? "Outstanding" : (clinical >= 80 ? "Competitive" : "Action Needed"));
+            
+            const extraTotal = service + leadership + research;
+            updateSubCategoryBadge("badge-extracurriculars", extraTotal >= 200 ? "Outstanding" : (extraTotal >= 80 ? "Competitive" : "Action Needed"));
+
+            const list = document.getElementById('advisor-recommendations');
+            list.innerHTML = "";
+
+            let recommendations = [];
+
+            if (gpa < 3.4 || scienceGpa < 3.3) {
+                recommendations.push("<strong>Academic Upward Curve:</strong> Build upper-level biology/chemistry grade progress at BYU-I to showcase science capabilities.");
+            }
+            if (shadowing < 50) {
+                recommendations.push("<strong>Clinician Shadowing Gap:</strong> Complete shadowing loops with at least 2 practitioners in the Rexburg/Idaho Falls medical setups.");
+            }
+            if (clinical < 120) {
+                recommendations.push("<strong>Clinical Direct-Care Focus:</strong> Gain local clinical placement hours (CNA, phlebotomist, or clinic coordinator) to satisfy admissions committees.");
+            }
+            if (service < 85) {
+                recommendations.push("<strong>Community Outreach Commitment:</strong> Balance missionary hours with dedicated civic local volunteer structures inside Madison County.");
+            }
+            if (track === "Pre-Dent" && !document.getElementById('comp-manual-dex').checked) {
+                recommendations.push("<strong>Fine Motor Dexterity:</strong> Provide structured manual skill examples (lab carving, instruments, sculpting).");
+            }
+
+            if (recommendations.length === 0) {
+                recommendations.push("<strong>Optimal Viability Standing:</strong> Focus on personal statement edits, mock interview runs, and early primary submissions.");
+            }
+
+            recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.className = "flex items-start text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-150";
+                li.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-[#3063A5] mr-2 flex-shrink-0 mt-0.5"></i> <span>${rec}</span>`;
+                list.appendChild(li);
+            });
+
+            lucide.createIcons();
+        }
+
+        function updateSubCategoryBadge(elementId, status) {
+            const el = document.getElementById(elementId);
+            el.innerText = status;
+            if (status === "Outstanding") {
+                el.className = "px-2 py-0.5 bg-emerald-500/25 text-emerald-300 font-bold rounded";
+            } else if (status === "Competitive") {
+                el.className = "px-2 py-0.5 bg-blue-500/30 text-blue-200 font-bold rounded";
+            } else {
+                el.className = "px-2 py-0.5 bg-rose-500/25 text-rose-300 font-bold rounded";
+            }
+        }
+
+        // SAVE ADVISOR-CALCULATED CHANGES
+        function saveCalculatedToCohort() {
+            const name = document.getElementById('calc-name').value;
+            if (!name) {
+                showMessage("Name Missing", "Ensure student name field has a valid input.");
+                return;
+            }
+
+            const track = document.getElementById('calc-track').value;
+            const gpa = parseFloat(document.getElementById('calc-gpa').value) || 3.0;
+            const scienceGpa = parseFloat(document.getElementById('calc-science-gpa').value) || 3.0;
+            const examScore = parseInt(document.getElementById('calc-exam-score').value) || 0;
+            const examType = document.getElementById('calc-exam-type').value || "None";
+            const shadowing = parseInt(document.getElementById('calc-shadowing').value) || 0;
+            const clinical = parseInt(document.getElementById('calc-clinical').value) || 0;
+            const service = parseInt(document.getElementById('calc-service').value) || 0;
+            const leadership = parseInt(document.getElementById('calc-leadership').value) || 0;
+            const research = parseInt(document.getElementById('calc-research').value) || 0;
+            const notes = document.getElementById('calc-notes').value || "";
+
+            const competencies = {
+                empathy: document.getElementById('comp-empathy').checked,
+                ethics: document.getElementById('comp-ethics').checked,
+                teamwork: document.getElementById('comp-teamwork').checked,
+                resilience: document.getElementById('comp-resilience').checked,
+                growth: document.getElementById('comp-growth').checked,
+                dexterity: document.getElementById('comp-manual-dex').checked
+            };
+
+            const existingIndex = cohort.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+
+            if (existingIndex !== -1) {
+                cohort[existingIndex] = {
+                    ...cohort[existingIndex],
+                    track, gpa, scienceGpa, examScore, examType, shadowing, clinical, service, leadership, research, notes, competencies
+                };
+                showMessage("Record Synced", `Updated application standing and advising comments for ${name}.`);
+            } else {
+                const newId = "st-" + (cohort.length + 1);
+                cohort.push({
+                    id: newId, name, track, gpa, scienceGpa, examScore, examType, shadowing, clinical, service, leadership, research, notes, competencies, personalStatement: ""
+                });
+                showMessage("Record Created", `Successfully added ${name} to your BYU-I Cohort.`);
+            }
+
+            renderDashboard();
+        }
+
+        // CSV COHORT SPREADSHEET EXPORTER
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Student Name,Pathway,Cumulative GPA,Science GPA,Entrance Exam,Exam Score,Shadowing Hours,Clinical Hours,Service Hours,Leadership Hours,Research Hours,Advisor Notes\n";
+
+            cohort.forEach(student => {
+                const row = [
+                    `"${student.name}"`,
+                    `"${student.track}"`,
+                    student.gpa,
+                    student.scienceGpa,
+                    `"${student.examType}"`,
+                    student.examScore,
+                    student.shadowing,
+                    student.clinical,
+                    student.service,
+                    student.leadership,
+                    student.research,
+                    `"${(student.notes || '').replace(/"/g, '""')}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `BYUI_PreHealth_Advising_Cohort_${new Date().getFullYear()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // NEW STUDENT QUICK MODAL LOGIC
+        function openNewStudentModal() {
+            document.getElementById('student-modal').classList.remove('hidden');
+        }
+
+        function closeNewStudentModal() {
+            document.getElementById('student-modal').classList.add('hidden');
+        }
+
+        function saveNewStudentModal() {
+            const name = document.getElementById('modal-name').value;
+            const track = document.getElementById('modal-track').value;
+            const gpa = parseFloat(document.getElementById('modal-gpa').value) || 3.0;
+            const scienceGpa = parseFloat(document.getElementById('modal-science-gpa').value) || 3.0;
+            const shadowing = parseInt(document.getElementById('modal-shadowing').value) || 0;
+            const clinical = parseInt(document.getElementById('modal-clinical').value) || 0;
+            const service = parseInt(document.getElementById('modal-service').value) || 0;
+            const leadership = parseInt(document.getElementById('modal-leadership').value) || 0;
+            const research = parseInt(document.getElementById('modal-research').value) || 0;
+
+            if (!name) {
+                showMessage("Name Required", "Ensure the student name input has a valid name.");
+                return;
+            }
+
+            const newId = "st-" + (cohort.length + 1);
+            cohort.push({
+                id: newId,
+                name, track, gpa, scienceGpa,
+                examScore: 0,
+                examType: "None",
+                shadowing, clinical, service, leadership, research,
+                notes: "",
+                personalStatement: "",
+                competencies: {
+                    empathy: true,
+                    ethics: true,
+                    teamwork: true,
+                    resilience: true,
+                    growth: true,
+                    dexterity: false
+                }
+            });
+
+            closeNewStudentModal();
+            renderDashboard();
+            showMessage("Student Created", `${name} added to advising roster.`);
+        }
+
+        function deleteStudent(id) {
+            cohort = cohort.filter(s => s.id !== id);
+            renderDashboard();
+        }
+
+        function clearCalculatorForm() {
+            document.getElementById('calc-name').value = "";
+            document.getElementById('calc-gpa').value = "0.0";
+            document.getElementById('calc-science-gpa').value = "0.0";
+            document.getElementById('calc-shadowing').value = "0";
+            document.getElementById('calc-clinical').value = "0";
+            document.getElementById('calc-service').value = "0";
+            document.getElementById('calc-leadership').value = "0";
+            document.getElementById('calc-research').value = "0";
+            document.getElementById('calc-exam-score').value = "0";
+            document.getElementById('calc-notes').value = "";
+        }
+
+        // HOOK WRITING WORKBENCH ENGINE
+        const essayInput = document.getElementById('essay-hook-input');
+        
+        if (essayInput) {
+            essayInput.addEventListener('input', () => {
+                const text = essayInput.value.trim();
+                const charCount = text.length;
+                const wordCount = text === "" ? 0 : text.split(/\s+/).length;
+                
+                document.getElementById('char-count').innerText = charCount + " characters";
+                document.getElementById('word-count').innerText = wordCount + " words";
+
+                if (currentRole === 'student') {
+                    const studentIndex = cohort.findIndex(s => s.id === activeStudentId);
+                    if (studentIndex !== -1) {
+                        cohort[studentIndex].personalStatement = essayInput.value;
+                    }
+                }
+            });
+        }
+
+        function selectHookTemplate(type) {
+            essayInput.value = hookTemplates[type];
+            essayInput.dispatchEvent(new Event('input'));
+        }
+
+        function analyzeEssayHook() {
+            const text = essayInput.value.trim();
+            if (text.length < 20) {
+                showMessage("Text Too Short", "Please write a comprehensive hook paragraph (at least 20 characters) for analysis.");
+                return;
+            }
+
+            let showTellScore = 40;
+            let clicheRisk = 20;
+            let compScore = 30;
+            
+            let critique = "";
+            let advice = "";
+
+            const words = text.toLowerCase();
+
+            const cliches = ["always wanted to be", "since I was a kid", "since I was little", "passion for science", "love helping people", "fascinated by anatomy", "gpa", "test score"];
+            let foundCliches = [];
+            cliches.forEach(c => {
+                if (words.includes(c)) {
+                    clicheRisk += 25;
+                    foundCliches.push(`"${c}"`);
+                }
+            });
+
+            const sensory = ["patient", "hand", "smell", "gasp", "beeps", "hum", "smile", "tears", "crying", "room", "extraction", "scaffold", "fracture", "stitch", "incision"];
+            let sensoryCount = 0;
+            sensory.forEach(s => {
+                if (words.includes(s)) {
+                    showTellScore += 12;
+                    sensoryCount++;
+                }
+            });
+
+            // Service mission context detection (returned missionary/humanitarian)
+            const serviceKey = ["mission", "guatemala", "humanitarian", "translate", "service", "spanish", "voluntary", "stewardship", "disaster", "volunteer"];
+            let serviceCount = 0;
+            serviceKey.forEach(sk => {
+                if (words.includes(sk)) {
+                    compScore += 20;
+                    serviceCount++;
+                }
+            });
+
+            showTellScore = Math.min(showTellScore, 100);
+            clicheRisk = Math.min(clicheRisk, 100);
+            compScore = Math.min(compScore, 100);
+
+            if (clicheRisk > 45) {
+                critique = `Your introductory hook has a high level of standard pre-health cliches (${foundCliches.join(', ')}). Admissions panels read thousands of essays beginning with 'Since I was young' and tend to overlook these repetitive openings.`;
+                advice = "Dive straight into the action of your service mission, clinical incident, or family hurdle. Delete general summaries of your childhood interests.";
+            } else if (showTellScore < 60) {
+                critique = "Your draft has clean prose but relies heavily on summarizing feelings or 'telling' rather than sensory recreation.";
+                advice = "Add specific concrete details. Recreate what you heard, saw, or felt inside the clinical room or on your service assignment.";
+            } else {
+                critique = "Outstanding Narrative Flow! Your introduction sets up powerful contextual imagery and avoids predictable opening cliches. It highlights clinical service patterns naturally.";
+                advice = "Construct your transitional paragraph to cleanly bridge this narrative hook directly to your professional aspirations.";
+            }
+
+            setAnimateBar('bar-show-tell', 'score-show-tell', showTellScore);
+            setAnimateBar('bar-cliche', 'score-cliche', clicheRisk);
+            setAnimateBar('bar-competency', 'score-competency', compScore);
+
+            document.getElementById('hook-critique-text').innerText = critique;
+            document.getElementById('hook-advisor-advice').innerText = advice;
+        }
+
+        function setAnimateBar(barId, labelId, val) {
+            const bar = document.getElementById(barId);
+            const label = document.getElementById(labelId);
+            bar.style.width = val + "%";
+            label.innerText = val + "%";
+            
+            if (barId === 'bar-cliche') {
+                if (val > 50) bar.className = "bg-rose-500 h-full transition-all duration-500";
+                else bar.className = "bg-blue-900 h-full transition-all duration-500";
+            } else {
+                if (val > 70) bar.className = "bg-emerald-500 h-full transition-all duration-500";
+                else if (val > 45) bar.className = "bg-blue-900 h-full transition-all duration-500";
+                else bar.className = "bg-amber-500 h-full transition-all duration-500";
+            }
+        }
+
+        // DYNAMIC STATE AND PROFESSION CHECKLIST WORKFLOW (Fulfills checklist workflow request)
+        function onFilterParamsChange() {
+            const fieldVal = document.getElementById('school-filter-field').value;
+            const stateVal = document.getElementById('school-filter-state').value;
+            const checklistContainer = document.getElementById('schools-checklist-container');
+            
+            checklistContainer.innerHTML = "";
+            let matchCount = 0;
+
+            schoolArchetypes.forEach(school => {
+                const matchesField = (fieldVal === 'all') || (school.field === fieldVal);
+                const matchesState = (stateVal === 'all') || (school.state === stateVal);
+
+                if (matchesField && matchesState) {
+                    matchCount++;
+                    const isChecked = comparedSchoolIds.includes(school.id);
+                    
+                    const itemLabel = document.createElement('label');
+                    itemLabel.className = "flex items-start gap-2.5 p-2 bg-white rounded-lg border border-slate-200 hover:border-[#3063A5] hover:bg-slate-50 cursor-pointer transition text-xs font-semibold select-none shadow-2xs";
+                    itemLabel.innerHTML = `
+                        <input type="checkbox" value="${school.id}" ${isChecked ? 'checked' : ''} 
+                            onchange="onSchoolChecklistToggle('${school.id}', this)"
+                            class="mt-0.5 rounded border-slate-300 text-[#3063A5] focus:ring-[#3063A5]">
+                        <div class="space-y-0.5">
+                            <span class="block font-bold text-slate-800 leading-tight">${school.name}</span>
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">${school.field} • ${school.state}</span>
+                        </div>
+                    `;
+                    checklistContainer.appendChild(itemLabel);
+                }
+            });
+
+            document.getElementById('matching-schools-count').innerText = `${matchCount} found`;
+        }
+
+        function onSchoolChecklistToggle(id, checkbox) {
+            const index = comparedSchoolIds.indexOf(id);
+            if (checkbox.checked) {
+                if (comparedSchoolIds.length >= 10) {
+                    checkbox.checked = false;
+                    showMessage("Limit Reached", "You can compare up to 10 target schools concurrently inside your comparison workspace.");
+                    return;
+                }
+                if (index === -1) {
+                    comparedSchoolIds.push(id);
+                }
+            } else {
+                if (index !== -1) {
+                    comparedSchoolIds.splice(index, 1);
+                }
+            }
+            renderComparisonDesk();
+        }
+
+        // RENDER LIVE COMPARE DESK
+        function renderComparisonDesk() {
+            const container = document.getElementById('comparison-desk-container');
+            document.getElementById('compare-desk-count').innerText = comparedSchoolIds.length;
+
+            if (comparedSchoolIds.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 px-4 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                        <div class="p-3 bg-white border border-slate-200 rounded-full w-12 h-12 flex items-center justify-center mx-auto shadow-2xs text-slate-400">
+                            <i data-lucide="layers" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mt-4 text-sm">Comparison Desk Empty</h4>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Select a profession and state, then check up to 10 schools from the left-side checklist to load side-by-side admissions mission guidelines.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let cardsHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-5">`;
+
+            comparedSchoolIds.forEach(id => {
+                const school = schoolArchetypes.find(s => s.id === id);
+                if (school) {
+                    cardsHTML += `
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 shadow-2xs flex flex-col justify-between space-y-4 hover:border-[#3063A5] transition duration-200">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-start">
+                                    <span class="bg-blue-100 text-[#3063A5] font-extrabold px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wider">${school.field} • ${school.state}</span>
+                                    <button onclick="removeSchoolFromComparison('${school.id}')" class="text-slate-400 hover:text-rose-600 transition">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <h4 class="font-black text-slate-900 text-sm leading-snug">${school.name}</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed">${school.description}</p>
+                                
+                                <div class="p-3.5 bg-white rounded-xl border border-slate-150 space-y-1.5">
+                                    <span class="text-[10px] text-[#3063A5] uppercase tracking-widest font-black block">Official Mission Target</span>
+                                    <p class="text-xs text-slate-600 italic font-medium leading-relaxed">"${school.missionStatement}"</p>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-200 space-y-3">
+                                <div class="text-xs bg-blue-50/50 p-3 rounded-xl border border-blue-100 text-slate-700 leading-relaxed">
+                                    <strong class="text-[10px] text-[#3063A5] uppercase tracking-wider block mb-1 font-bold">BYU-I Portfolio Alignment Advice</strong>
+                                    <p class="text-[11px] text-slate-600">${school.byuiAdvice}</p>
+                                </div>
+                                <div class="flex justify-between items-center text-xs text-slate-400 font-semibold px-1">
+                                    <span>Target GPA: <strong class="text-slate-700">${school.avgGPA}</strong></span>
+                                    <span class="text-[#3063A5] font-bold text-[10px] uppercase">${school.type}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            cardsHTML += `</div>`;
+            container.innerHTML = cardsHTML;
+            lucide.createIcons();
+        }
+
+        function removeSchoolFromComparison(id) {
+            const index = comparedSchoolIds.indexOf(id);
+            if (index !== -1) {
+                comparedSchoolIds.splice(index, 1);
+            }
+            onFilterParamsChange();
+            renderComparisonDesk();
+        }
+
+        function clearComparisonDesk() {
+            comparedSchoolIds = [];
+            onFilterParamsChange();
+            renderComparisonDesk();
+        }
+
+        // RESET DIRECTORY FILTERS
+        function resetDirectoryFilters() {
+            document.getElementById('school-filter-field').value = "all";
+            document.getElementById('school-filter-state').value = "all";
+            clearComparisonDesk();
+        }
+
+        // ONLOAD INITIALIZATION
+        window.onload = function() {
+            renderDashboard();
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

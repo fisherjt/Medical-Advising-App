@@ -2,52 +2,85 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Running the App
+## Project Structure
 
-Open `byu_i_pre_health_advisor_app.html` directly in a browser — no build step, server, or package manager required. All dependencies (Tailwind CSS, Lucide icons) are loaded from CDN.
+- `byu_i_pre_health_advisor_app.html` — original single-file prototype (reference only)
+- `webapp/` — production Next.js application (work here)
+
+## Development Commands
+
+All commands run from `webapp/`:
+
+```bash
+npm run dev          # start dev server at http://localhost:3000
+npm run build        # production build
+npm run db:seed      # seed the database with demo users
+npm run db:migrate   # run Prisma migrations
+npm run db:studio    # open Prisma Studio (visual DB browser)
+```
+
+## Stack
+
+- **Framework**: Next.js 16 (App Router) + TypeScript + Tailwind CSS
+- **Database**: SQLite (dev) → Azure SQL / MS SQL Server (production)
+- **ORM**: Prisma 7 with `@prisma/adapter-libsql` driver adapter
+- **Auth**: NextAuth v4 with credentials provider (→ Entra ID SSO for production)
+- **Hosting target**: Azure App Service
 
 ## Architecture
 
-This is a **single-file HTML application** with no backend. All state lives in JavaScript variables in memory and resets on page reload. There is no persistence layer.
+### Prisma 7 — Important Differences
 
-### Global State
+Prisma 7 requires a driver adapter — no direct connection strings in the client constructor. All runtime DB access goes through `lib/prisma.ts` which wires up `PrismaLibSql`:
 
-Three module-level variables drive the entire app:
-
-- `cohort` — array of student objects; mutated directly by all advisor and student-facing actions
-- `comparedSchoolIds` — array of school IDs selected for side-by-side comparison (max 10)
-- `currentRole` — `'advisor'` or `'student'`; controls which nav group and tabs are visible
-
-### Tab/Role System
-
-`toggleRole()` switches between Advisor and Student views by toggling nav group visibility and calling `switchTab()`. `switchTab(tabId)` hides all five `<section id="tab-*">` elements then shows the target one. Tab IDs: `dashboard`, `evaluator`, `student-dashboard`, `statement`, `schools`.
-
-### Scoring Engine
-
-`runHolisticScoringEngine(student)` is the central algorithm — called everywhere a holistic score or rating badge is needed (dashboard stats, table rows, student meter, calculator report). It returns `{ score, rating }` where rating is one of: `"Outstanding Applicant"`, `"Highly Qualified"`, `"Developing Candidate"`, `"Uninitiated / Weak Plan"`. Score thresholds: ≥85 → Outstanding, ≥65 → Highly Qualified, ≥40 → Developing.
-
-### Data Structures
-
-**Student object** (in `cohort`):
-```
-{ id, name, track, gpa, scienceGpa, examScore, examType, shadowing, clinical,
-  service, leadership, research, notes, personalStatement, competencies: { empathy, ethics, teamwork, resilience, growth, dexterity } }
+```ts
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+const adapter = new PrismaLibSql({ url: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 ```
 
-**School object** (in `schoolArchetypes`, read-only):
-```
-{ id, name, field, type, region, state, avgGPA, description, missionStatement, byuiAdvice }
-```
+The generated client lives at `app/generated/prisma/client` (not `@prisma/client`). Always import from there. The `prisma.config.ts` in the project root configures the CLI/migrations; `lib/prisma.ts` configures the runtime client.
 
-### Key Functions
+### Next.js 16 — Important Differences
 
-- `renderDashboard()` → calls `renderStudentTable()` + `updateDashboardStats()`
-- `loadToCalculator(id)` → populates the Holistic Calculator tab from a cohort entry and switches to it
-- `saveCalculatedToCohort()` → upserts a cohort record by name match from the calculator form
-- `saveStudentSelfReport()` → writes student-view form fields back into the `cohort` array
-- `analyzeEssayHook()` — local heuristic analysis of personal statement text (no AI call); detects clichés and sensory language via keyword lists
-- `onFilterParamsChange()` / `renderComparisonDesk()` — school finder checklist and comparison desk rendering
+- Route protection uses `proxy.ts` (not `middleware.ts` — that convention is deprecated in v16)
+- The `proxy.ts` file uses `withAuth` from `next-auth/middleware` and the `matcher` config to protect `/advisor`, `/student`, and `/admin` routes
 
-### BYU-I Branding
+### Auth & Roles
 
-Primary color is `#3063A5` (used as Tailwind arbitrary value throughout). Custom CSS classes `.bg-byui-blue`, `.text-byui-blue`, `.border-byui-blue`, `.hover:bg-byui-blue-dark` are defined in `<style>`. Lucide icons are initialized/re-initialized via `lucide.createIcons()` after any dynamic DOM injection.
+Three roles stored as strings on the `User` model: `ADMIN`, `ADVISOR`, `STUDENT`. Role is injected into the JWT in `lib/auth.ts` callbacks and available on `session.user.role`. The `proxy.ts` file enforces role-based redirects server-side.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `lib/auth.ts` | NextAuth config, JWT/session callbacks, credentials provider |
+| `lib/prisma.ts` | Singleton Prisma client with libsql adapter |
+| `proxy.ts` | Route protection + role-based access control |
+| `prisma/schema.prisma` | DB schema: User, StudentProfile, AdvisorNote, School, AuditLog |
+| `prisma/seed.ts` | Creates demo Admin, Advisor, and Student accounts |
+| `app/generated/prisma/` | Auto-generated Prisma client — never edit manually |
+
+### FERPA Compliance Design
+
+- All `/advisor`, `/student`, `/admin` routes require authentication (enforced by `proxy.ts`)
+- `AuditLog` table records every action taken on student records (action, resource, resourceId, userId, ipAddress, timestamp)
+- Student data is never exposed client-side without a valid server session
+- For production: Azure SQL with encryption at rest, Azure App Service with HTTPS enforced, Entra ID SSO replaces the credentials provider
+
+### Switching to Production Database (Azure SQL)
+
+1. Replace `@prisma/adapter-libsql` with `@prisma/adapter-mssql`
+2. Update `datasource.provider` in `prisma/schema.prisma` to `sqlserver`
+3. Update `DATABASE_URL` in Azure App Service environment variables
+4. Run `npm run db:migrate`
+
+### Seed Credentials (dev only)
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@byui.edu | changeme123 |
+| Advisor | advisor@byui.edu | changeme123 |
+| Student | student@byui.edu | changeme123 |
+
+BYU-I brand color: `#3063A5`

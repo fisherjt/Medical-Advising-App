@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("STUDENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentProfile StudentProfile?
+  advisorNotes   AdvisorNote[]   @relation("AdvisorNotes")
+  auditLogs      AuditLog[]
+}
+
+model StudentProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track             String   @default("Pre-Med")
+  gpa               Float    @default(0)
+  scienceGpa        Float    @default(0)
+  examType          String   @default("MCAT")
+  examScore         Int      @default(0)
+  shadowingHours    Int      @default(0)
+  clinicalHours     Int      @default(0)
+  serviceHours      Int      @default(0)
+  leadershipHours   Int      @default(0)
+  researchHours     Int      @default(0)
+  personalStatement String   @default("")
+  compEthics        Boolean  @default(false)
+  compEmpathy       Boolean  @default(false)
+  compTeamwork      Boolean  @default(false)
+  compResilience    Boolean  @default(false)
+  compGrowth        Boolean  @default(false)
+  compDexterity     Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  advisorNotes AdvisorNote[]
+}
+
+model AdvisorNote {
+  id        String         @id @default(cuid())
+  content   String
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  advisorId String
+  advisor   User           @relation("AdvisorNotes", fields: [advisorId], references: [id])
+  createdAt DateTime       @default(now())
+}
+
+model School {
+  id               String @id @default(cuid())
+  name             String
+  field            String
+  type             String
+  region           String
+  state            String
+  avgGpa           String
+  description      String
+  missionStatement String
+  byuiAdvice       String
+}
+
+// FERPA audit trail — log every access to student records
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  resource   String
+  resourceId String
+  ipAddress  String   @default("")
+  timestamp  DateTime @default(now())
+}
